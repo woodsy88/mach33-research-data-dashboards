@@ -912,8 +912,37 @@
           scroll-behavior: auto;
         }
       }
+      .minirow {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
+      }
+      .miniyear {
+        font-family: "Turret Road", sans-serif;
+        font-size: 21px;
+        font-weight: 700;
+        color: var(--blue5);
+        line-height: 1;
+      }
       /* ---------- phones ---------- */
       @media (max-width: 640px) {
+        /* scrolled on a phone: the rail folds to the year, a dials toggle and the story chips */
+        .rail.compact:not(.pinopen) .toprow {
+          display: none;
+        }
+        .rail.compact:not(.pinopen) h1 {
+          display: none;
+        }
+        .rail.compact:not(.pinopen) .controls {
+          display: none;
+        }
+        .rail.compact .minirow {
+          display: flex;
+        }
+        .rail.compact.pinopen .minirow {
+          display: flex;
+        }
         .wrap {
           padding: 0 12px 44px;
         }
@@ -1138,6 +1167,10 @@
             <div class="yearbig" id="ybig">2026</div>
             <button class="playbtn" id="play">▶ play the window</button>
           </div>
+        </div>
+        <div class="minirow">
+          <span class="miniyear" id="miniyear">2026</span
+          ><button class="chip" id="dialtoggle">adjust dials ▾</button>
         </div>
         <div class="tourrow">
           <span class="tour-k">Or read a story</span>
@@ -88166,6 +88199,8 @@
           : 0.38 + 0.07 * ((q - 0.5) / 0.5);
       }
       function dialWords() {
+        const my = $("miniyear");
+        if (my) my.textContent = YRS[S.y];
         const a = AX.avals[S.a],
           q = AX.bvals[S.b],
           c = AX.cvals[S.c];
@@ -90011,10 +90046,17 @@
           } else if (_comp && y < 30) {
             _comp = false;
             r.classList.remove("compact");
+            r.classList.remove("pinopen");
+            $("dialtoggle").textContent = "adjust dials ▾";
           }
         },
         { passive: true },
       );
+      $("dialtoggle").onclick = () => {
+        const r = document.querySelector(".rail");
+        const open = r.classList.toggle("pinopen");
+        $("dialtoggle").textContent = open ? "hide dials ▴" : "adjust dials ▾";
+      };
     </script>
   </body>
 </html>
