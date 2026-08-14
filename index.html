@@ -281,16 +281,6 @@
         color: var(--txt);
         background: rgba(235, 51, 88, 0.1);
       }
-      .worldnote {
-        font-size: 11.5px;
-        color: var(--sub);
-        font-style: italic;
-        opacity: 0;
-        transition: opacity 0.5s;
-      }
-      .worldnote.on {
-        opacity: 1;
-      }
       /* the quiet joint-pricing badge */
       .jbadge {
         position: absolute;
@@ -810,16 +800,6 @@
         text-transform: uppercase;
         color: var(--dim);
       }
-      .tourstory {
-        font-size: 11.5px;
-        color: var(--sub);
-        font-style: italic;
-        opacity: 0;
-        transition: opacity 0.5s;
-      }
-      .tourstory.on {
-        opacity: 1;
-      }
       .chain {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -980,9 +960,6 @@
         .tour-k {
           white-space: nowrap;
           flex: none;
-        }
-        .worldnote {
-          display: none;
         }
         .quiet {
           display: none;
@@ -1171,7 +1148,6 @@
           </button>
           <button class="chip scen bear" data-s="dd">demand disappoints</button>
           <button class="chip scen bear" data-s="gr">GPUs retire early</button>
-          <span class="worldnote" id="tourstory"></span>
         </div>
         <div class="quiet">
           Three dials, pre-solved: <span id="ncells"></span> full model runs,
@@ -1287,7 +1263,11 @@
           while orbital capacity becomes the market. Every dial world and every
           named story draws its own fleet.
         </div>
-        <div class="fleetwrap">
+        <div class="chips" style="margin-top: 12px">
+          <button class="chip on" id="f-gw">gigawatts</button>
+          <button class="chip" id="f-tok">tokens served</button>
+        </div>
+        <div class="fleetwrap" style="margin-top: 14px">
           <div class="chartbox" style="height: 300px; margin-top: 0">
             <canvas id="cFleet"></canvas>
           </div>
@@ -1365,14 +1345,17 @@
           One market price, two honest units, indexed to 2026. Per
           <b>frontier chip of the era</b> it holds its ground, because each
           era's chip packs more capability; per
-          <b>fixed unit of capability</b> it collapses. Flip the toggle and
-          decide which sentence you were reading in the news.
+          <b>fixed unit of capability</b> (one H100e, an H100-equivalent) it
+          collapses. Flip the toggle and decide which sentence you were reading
+          in the news.
         </div>
         <div class="chips">
           <button class="chip on" id="chip-f">
             per frontier chip of the era
           </button>
-          <button class="chip" id="chip-h">per fixed unit of capability</button>
+          <button class="chip" id="chip-h">
+            per fixed unit of capability (H100e)
+          </button>
         </div>
         <div class="chartbox" style="height: 300px">
           <canvas id="cRails"></canvas>
@@ -88675,7 +88658,9 @@
           s =
             "<b>" +
             SC[S.s].name +
-            "</b> moves many of the model\u2019s assumptions together, not just three dials, and is run through the full model in solver mode. Your line is that world; the cloud behind it stays the full 5,000.";
+            ":</b> " +
+            STORIES[S.s] +
+            ' <span class="warn">A named world moves many of the model\u2019s assumptions together, not just three dials, and is run through the full model in solver mode; the cloud behind it stays the full 5,000.</span>';
         } else {
           const nlean = CL.counts27[dialCode()];
           s =
@@ -88811,7 +88796,7 @@
           tc.pct_over.toFixed(0) +
           "% of futures run past the ×" +
           tc.at / 1000 +
-          "k top of the chart; the log toggle shows them whole. The futures are drawn once, jointly, for the whole range of beliefs; your dials choose a line through them and light up the ones that lean your way.";
+          "k top of the chart; the log toggle shows them whole. On the linear revenue view a handful of futures (0.4%) run past the $12T top and flatten there; the log toggle shows those whole too. The futures are drawn once, jointly, for the whole range of beliefs; your dials choose a line through them and light up the ones that lean your way.";
         animateCloud();
 
         chRails = new Chart($("cRails"), {
@@ -88905,10 +88890,10 @@
           lin: {
             type: "linear",
             min: 0,
-            max: 18,
+            max: 12,
             ticks: {
               font: { size: 11 },
-              stepSize: 3,
+              stepSize: 2,
               callback: (v) => (v ? "$" + v + "T" : "0"),
             },
           },
@@ -89024,7 +89009,7 @@
         chRails.update("none");
         $("railword").textContent =
           railMode === "h"
-            ? "spot price per fixed unit of capability"
+            ? "spot price per fixed unit of capability (one H100e)"
             : "spot price per frontier chip of the era";
       }
       $("m-ratio").onclick = () => setMeasure("ratio");
@@ -89250,7 +89235,9 @@
           k: "The price",
           x: "spot rental set on the continuous band",
           fn: (y) =>
-            "$" + W().spot[y].toFixed(2) + '<span class="dim2">/hr</span>',
+            "$" +
+            W().spot[y].toFixed(2) +
+            '<span class="dim2">/hr per H100e</span>',
         },
         {
           k: "Build decisions",
@@ -89384,11 +89371,6 @@
         } else S.s = key;
         syncScen();
         update(true);
-        const st = $("tourstory");
-        st.innerHTML = STORIES[key];
-        st.classList.add("on");
-        clearTimeout(st._t);
-        st._t = setTimeout(() => st.classList.remove("on"), 12000);
       }
       function bindTours() {
         document
@@ -89412,7 +89394,7 @@
           const d0 = ch.data.datasets[0].data,
             d1 = ch.data.datasets[1].data;
           if (!d0 || !d0.length) return;
-          const tot = (k) => d0[k] + d1[k];
+          const tot = ch.options._tok ? (k) => d0[k] : (k) => d0[k] + d1[k];
           const v = tot(i) + (tot(Math.min(14, i + 1)) - tot(i)) * u;
           const x = ch.scales.x.getPixelForValue(f),
             y = ch.scales.y.getPixelForValue(v),
@@ -89475,9 +89457,13 @@
                 ...TOOL,
                 callbacks: {
                   label: (c) =>
-                    (c.datasetIndex ? "orbital " : "terrestrial ") +
-                    Math.round(c.parsed.y) +
-                    " GW",
+                    chFleet.options._tok
+                      ? (c.datasetIndex ? "wanted " : "served ") +
+                        "\u00d7" +
+                        Math.round(c.parsed.y).toLocaleString()
+                      : (c.datasetIndex ? "orbital " : "terrestrial ") +
+                        Math.round(c.parsed.y) +
+                        " GW",
                 },
               },
             },
@@ -89496,24 +89482,78 @@
                 beginAtZero: true,
                 grid: GRID,
                 border: { display: false },
-                ticks: { font: { size: 11 }, callback: (v) => v + " GW" },
+                ticks: {
+                  font: { size: 11 },
+                  callback: (v) =>
+                    chFleet && chFleet.options._tok
+                      ? "\u00d7" + (v >= 1000 ? v / 1000 + "k" : v)
+                      : v + " GW",
+                },
               },
             },
           },
           plugins: [fleetMark],
         });
-        $("leg-fleet").innerHTML =
-          '<span class="g">Capacity in service</span>' +
-          '<span class="it"><span class="sw" style="background:rgba(9,70,131,0.8)"></span>terrestrial (ground data centres)</span>' +
-          '<span class="it"><span class="sw" style="background:rgba(36,153,247,0.55)"></span>orbital (satellite constellations)</span>' +
-          '<span class="it" style="color:#5F6C7C">stock in service, gigawatts of compute power &middot; solver basis, like everything on this page</span>';
+        $("f-gw").onclick = () => {
+          FLEETV = "gw";
+          $("f-gw").classList.add("on");
+          $("f-tok").classList.remove("on");
+          updFleet();
+        };
+        $("f-tok").onclick = () => {
+          FLEETV = "tok";
+          $("f-tok").classList.add("on");
+          $("f-gw").classList.remove("on");
+          updFleet();
+        };
+        fleetLegend();
       }
+      function fleetLegend() {
+        $("leg-fleet").innerHTML =
+          FLEETV === "gw"
+            ? '<span class="g">Capacity in service</span>' +
+              '<span class="it"><span class="sw" style="background:rgba(9,70,131,0.8)"></span>terrestrial (ground data centres)</span>' +
+              '<span class="it"><span class="sw" style="background:rgba(36,153,247,0.55)"></span>orbital (satellite constellations)</span>' +
+              '<span class="it" style="color:#5F6C7C">stock in service, gigawatts of compute power &middot; solver basis, like everything on this page</span>'
+            : '<span class="g">Tokens, \u00d72026</span>' +
+              '<span class="it"><span class="swl" style="background:#2499F7"></span>served in this world</span>' +
+              '<span class="it"><span class="swl" style="background:rgba(125,130,136,0.7)"></span>wanted (dashed) &middot; the gap is unserved demand</span>' +
+              '<span class="it" style="color:#5F6C7C">solver basis, like everything on this page</span>';
+      }
+      let FLEETV = "gw";
       function updFleet() {
         if (!chFleet) return;
         const w = W(),
           y = S.y;
-        chFleet.data.datasets[0].data = w.terr.slice();
-        chFleet.data.datasets[1].data = w.orb.slice();
+        const ds = chFleet.data.datasets;
+        if (FLEETV === "gw") {
+          chFleet.options._tok = false;
+          chFleet.options.scales.y.stacked = true;
+          ds[0].data = w.terr.slice();
+          ds[0].borderColor = "#1665B4";
+          ds[0].backgroundColor = "rgba(9,70,131,0.55)";
+          ds[0].fill = "origin";
+          ds[0].borderDash = undefined;
+          ds[1].data = w.orb.slice();
+          ds[1].borderColor = "#44A8F9";
+          ds[1].backgroundColor = "rgba(36,153,247,0.30)";
+          ds[1].fill = "-1";
+          ds[1].borderDash = undefined;
+        } else {
+          chFleet.options._tok = true;
+          chFleet.options.scales.y.stacked = false;
+          ds[0].data = YRS.map((_, i) => Math.min(w.dem[i], w.sup[i]));
+          ds[0].borderColor = "#2499F7";
+          ds[0].backgroundColor = "rgba(36,153,247,0.10)";
+          ds[0].fill = "origin";
+          ds[0].borderDash = undefined;
+          ds[1].data = w.dem.slice();
+          ds[1].borderColor = "rgba(125,130,136,0.7)";
+          ds[1].backgroundColor = "transparent";
+          ds[1].fill = false;
+          ds[1].borderDash = [5, 5];
+        }
+        fleetLegend();
         chFleet.update("none");
         const tot = w.terr[y] + w.orb[y],
           oshare = tot > 0 ? (100 * w.orb[y]) / tot : 0;
@@ -89685,10 +89725,10 @@
           MEASURE === "ratio"
             ? Math.min(4.0, v)
             : MEASURE === "rev"
-              ? Math.min(18, v / 1000)
+              ? Math.min(12, v / 1000)
               : v;
         const lo = MEASURE === "ratio" ? 0.4 : 0,
-          hi = MEASURE === "ratio" ? 4.0 : MEASURE === "rev" ? 18 : 40000;
+          hi = MEASURE === "ratio" ? 4.0 : MEASURE === "rev" ? 12 : 40000;
         const sy = (v) => gy0 + gh - ((Math.min(v, hi) - lo) / (hi - lo)) * gh;
         const sx = (i) => gx0 + (i / 14) * gw;
         for (const pass of [0, 1]) {
@@ -89959,12 +89999,20 @@
         $("play").textContent = "⏸ pause";
       }
       requestAnimationFrame(clock);
+      let _comp = false;
       addEventListener(
         "scroll",
-        () =>
-          document
-            .querySelector(".rail")
-            .classList.toggle("compact", scrollY > 90),
+        () => {
+          const y = scrollY,
+            r = document.querySelector(".rail");
+          if (!_comp && y > 200) {
+            _comp = true;
+            r.classList.add("compact");
+          } else if (_comp && y < 30) {
+            _comp = false;
+            r.classList.remove("compact");
+          }
+        },
         { passive: true },
       );
     </script>
