@@ -202,6 +202,10 @@ input[type=range]:focus-visible{outline:2px solid var(--blue4);outline-offset:3p
   .tour-k{white-space:nowrap;flex:none}
   .quiet{display:none}
   .toprow .share{padding:4px 9px;font-size:10px}
+  .rail.compact:not(.pinopen) .toprow{display:none}
+  .ctabig{flex-direction:column;align-items:flex-start;gap:16px;padding:20px 16px}
+  .ctab-t{font-size:18px}
+  .ctab-btn{width:100%;text-align:center;padding:13px 18px}
   .panel{padding:20px 15px 17px;margin-top:14px}
   .pt{font-size:17px}
   .ps{font-size:12px}
@@ -224,6 +228,22 @@ input[type=range]:focus-visible{outline:2px solid var(--blue4);outline-offset:3p
   .foot{flex-direction:column;gap:6px}
   .jbadge{display:none}
 }
+/* ---------- calls to action ---------- */
+.share.ctamini{text-decoration:none;border-color:rgba(36,153,247,0.45);color:var(--blue4);font-weight:600;display:inline-block}
+.share.ctamini:hover{border-color:var(--blue5);color:var(--txt);background:rgba(36,153,247,0.10)}
+.ctabig{display:flex;align-items:center;justify-content:space-between;gap:26px;text-decoration:none;
+  background:linear-gradient(135deg,rgba(9,70,131,0.30),rgba(14,20,32,0.6) 55%,rgba(8,11,18,0.9));
+  border:1px solid rgba(36,153,247,0.30);border-radius:14px;padding:26px 30px;margin-top:22px;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.ctabig::before{content:'';position:absolute;inset:0;background:radial-gradient(70% 120% at 12% 0%,rgba(34,207,255,0.10),transparent 60%);pointer-events:none}
+.ctabig:hover{border-color:rgba(36,153,247,0.65);transform:translateY(-1px)}
+.ctab-k{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--blue4)}
+.ctab-t{font-size:21px;font-weight:700;color:var(--txt);letter-spacing:-0.3px;margin-top:5px}
+.ctab-x{font-size:12.5px;color:var(--sub);line-height:1.55;margin-top:7px;max-width:620px}
+.ctab-btn{flex:none;background:linear-gradient(135deg,var(--blue),var(--blue5));color:#fff;font-size:13.5px;font-weight:700;
+  padding:12px 22px;border-radius:24px;white-space:nowrap;box-shadow:0 4px 18px rgba(28,121,214,0.25)}
+.ctab-ar{display:inline-block;transition:transform .25s}
+.ctabig:hover .ctab-ar{transform:translateX(3px)}
+@media(prefers-reduced-motion: reduce){.ctabig:hover{transform:none}.ctabig:hover .ctab-ar{transform:none}}
 .toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:#0E1420;border:1px solid rgba(36,153,247,0.4);color:var(--txt);font-size:12px;padding:9px 18px;border-radius:22px;transition:.3s;opacity:0;z-index:99}
 .toast.on{transform:translate(-50%,0);opacity:1}
 </style>
@@ -234,7 +254,7 @@ input[type=range]:focus-visible{outline:2px solid var(--blue4);outline-offset:3p
 <div class="rail"><div class="rail-in">
   <div class="toprow">
     <div class="brand">Mach33 Research · <b>Interactive model</b></div>
-    <div style="display:flex;gap:8px"><button class="share" id="cardbtn">Save this world as a card</button><button class="share" id="sharebtn">Copy link</button></div>
+    <div style="display:flex;gap:8px;align-items:center"><a class="share ctamini" href="https://research.33fg.com/analysis/ai-compute-keystone-model-download" target="_blank" rel="noopener">Get the model &rarr;</a><button class="share" id="cardbtn">Save this world as a card</button><button class="share" id="sharebtn">Copy link</button></div>
   </div>
   <h1>Build Your Compute Market</h1>
   <div class="tag">Three questions. Every answer, pre-solved. The model prices the world you believe in.</div>
@@ -372,6 +392,15 @@ input[type=range]:focus-visible{outline:2px solid var(--blue4);outline-offset:3p
       </div>
     </div>
   </div>
+
+  <a class="ctabig" href="https://research.33fg.com/analysis/ai-compute-keystone-model-download" target="_blank" rel="noopener">
+    <div class="ctab-l">
+      <div class="ctab-k">The model behind this page</div>
+      <div class="ctab-t">Download the Mach33 AI Compute Model</div>
+      <div class="ctab-x">Every world on this page comes out of one model: the full register of assumptions, the named worlds, the distributions and the workings behind the numbers you have been moving.</div>
+    </div>
+    <div class="ctab-btn">Get the model <span class="ctab-ar">&rarr;</span></div>
+  </a>
 
   <div class="panel" style="padding:22px 30px 20px">
     <div class="foot" style="border-top:none;margin-top:0;padding-top:0">
